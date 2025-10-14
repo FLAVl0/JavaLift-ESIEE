@@ -2,37 +2,57 @@ package esiee.ihm;
 
 import java.io.File;
 import java.util.Scanner;  
-import java.util.ArrayList;
+import com.google.gson.Gson;
+import java.util.HashMap;
 
 public class Configuration {
-    private ArrayList<String> configValues;
 
-    public Configuration() {
-        configValues = new ArrayList<>();
-    }
-
-    public void load(String path) {
+    public String load(String path) {
+        String content = "";
         System.out.println("Loading configuration from: " + path);
         // Add code to read and parse the configuration file
         try {
             File file = new File(path);
             Scanner scanner = new Scanner(file);
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                System.out.println(line);
-                configValues.add(line);
+            while (scanner.hasNext()) {
+                String c = scanner.next();
+                System.out.println(c);
+                content += c;
             }
             scanner.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return content;
     }
 
-    public void parse() {
-        System.out.println("Parsing configuration...");
-        // Add code to parse the configuration values
-        for (String value : configValues) {
-            System.out.println("Parsed value: " + value);
-        }
+    public Object parse(String path, Class<?> record) {
+        String json = load(path);
+        Gson gson = new Gson();
+        Object configData = gson.fromJson(json, record);
+        return configData;
     }
+
+    public ConfigurationRecord formatAll(Enum<?> ListConfig) {
+        HashMap<String, Object> configs = new HashMap<>();
+        for (Enum<?> e : ListConfig.getClass().getEnumConstants()) {
+            if (e instanceof RecordList) {
+                RecordList record = (RecordList) e;
+                Object configData = parse("src/main/resources/" + record.getFileName(), record.getConfigClass());
+                configs.put(record.name(), configData);
+            }
+        }
+        // Instantiation of ConfigurationRecord with preparsed record with a for loop
+        ConfigurationRecord config = new ConfigurationRecord(
+            (SimulationConfig) configs.get(RecordList.SIMULATION.name()),
+            (TowerConfig) configs.get(RecordList.TOWER.name()),
+            (LiftConfig) configs.get(RecordList.LIFT.name()),
+            (HabitudeConfig) configs.get(RecordList.HABITUDE.name())
+        );
+        return config;
+    }
+
+    
 }
+
+
