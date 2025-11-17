@@ -1,0 +1,7 @@
+{
+    "nbFloors": 10,
+    "nbLifts": 2,
+    "floorHeight": 3,
+    "maxPeoplePerFloor": 20,
+    "randHabitant": true
+}
