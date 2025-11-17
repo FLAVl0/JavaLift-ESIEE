@@ -1,25 +1,30 @@
 package esiee.lift;
 
 import java.util.ArrayList;
-
-import esiee.lift.builder.Lift;
-import esiee.lift.builder.LiftBuilder;
+import esiee.lift.builder.*;
 
 public class AGA {
-	private static ArrayList<Lift> lifts = new ArrayList<>();
 
-	public void createLift() {
-		LiftBuilder lb = new LiftBuilder();
+	/* Definition of the AGA class */
 
-		Lift lift = lb.createLift();
-		lifts.add(lift);
+	private final ArrayList<LiftManager> liftManagers = new ArrayList<LiftManager>(); // Starts empty (created via builder)
+
+	/* Functions to manage global lift state */
+
+	/**
+	 * Create a new lift and add its manager to this AGA instance.
+	 * @param lm the lift to create through its manager
+	 */
+	public void addLift(LiftManager lm) {
+		liftManagers.add(lm);
 	}
 
-	public void addLift(Lift lift) {
-		lifts.add(lift);
-	}
+	/* Functions to query about global lift state */
 
-	public ArrayList<Lift> getLifts() {
-		return lifts;
+	/**
+	 * Get the list of lifts managed by this AGA.
+	 */
+	public ArrayList<LiftManager> getLiftManagers() {
+		return liftManagers;
 	}
 }
