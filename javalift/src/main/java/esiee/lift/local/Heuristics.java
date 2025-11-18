@@ -1,6 +1,6 @@
-package esiee.lift.algorithm;
+package esiee.lift.local;
 
-import esiee.lift.builder.*;
+import esiee.lift.local.builder.*;
 
 /**
  * Enumeration of different heuristics for lift management.

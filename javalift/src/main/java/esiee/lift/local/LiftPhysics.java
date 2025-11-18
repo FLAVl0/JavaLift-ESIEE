@@ -1,4 +1,6 @@
-package esiee.lift.builder;
+package esiee.lift.local;
+
+import esiee.lift.local.builder.Lift;
 
 public class LiftPhysics {
 
