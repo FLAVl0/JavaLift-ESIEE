@@ -1,9 +1,10 @@
-package esiee.ihm;
+package esiee.config;
 
 import java.io.File;
-import java.util.Scanner;  
-import com.google.gson.Gson;
 import java.util.HashMap;
+import java.util.Scanner;
+
+import com.google.gson.Gson;
 
 public class Configuration {
 
