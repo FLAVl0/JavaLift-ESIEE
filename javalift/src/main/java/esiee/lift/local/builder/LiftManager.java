@@ -1,6 +1,8 @@
-package esiee.lift.builder;
+package esiee.lift.local.builder;
 
-import esiee.lift.algorithm.Heuristics;
+import esiee.lift.local.Heuristics;
+import esiee.lift.local.LiftEvolution;
+import esiee.lift.local.LiftPhysics;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -11,7 +13,7 @@ public class LiftManager {
 
 	private final Lift lift;
 	private final LiftPhysics physics;
-	
+
 	private boolean doorOpen;
 
 	private int currentCapacity;
@@ -25,10 +27,18 @@ public class LiftManager {
 	 * Constructor for LiftManager with specified initial capacity and floor.
 	 * If not specified, default values are used:
 	 * 
-	 * <p>- initialCapacity is set to 0</p>
-	 * <p>- initialFloor is set to lift.minFloor()</p>
-	 * <p>- doorOpen is set to false</p>
-	 * <p>- heuristics is set to Heuristics.RANDOM</p>
+	 * <p>
+	 * - initialCapacity is set to 0
+	 * </p>
+	 * <p>
+	 * - initialFloor is set to lift.minFloor()
+	 * </p>
+	 * <p>
+	 * - doorOpen is set to false
+	 * </p>
+	 * <p>
+	 * - heuristics is set to Heuristics.RANDOM
+	 * </p>
 	 * 
 	 * @param lift            the lift to manage
 	 * @param initialCapacity the initial capacity of the lift
@@ -36,7 +46,9 @@ public class LiftManager {
 	 * @param doorOpen        the initial door state of the lift
 	 * @param heuristics      the heuristic to use for target floor selection
 	 * 
-	 * @see Heuristics
+	 * @see esiee.lift.local.Heuristics
+	 * @see esiee.lift.AGA
+	 * @see esiee.lift.local.builder.Lift
 	 */
 	public LiftManager(Lift lift, int initialCapacity, int initialFloor, boolean doorOpen, Heuristics heuristics) {
 		this.lift = lift;
@@ -53,10 +65,18 @@ public class LiftManager {
 	/**
 	 * Constructor for LiftManager with default values if not specified.
 	 * 
-	 * <p>- initialCapacity is set to 0</p>
-	 * <p>- initialFloor is set to lift.minFloor()</p>
-	 * <p>- doorOpen is set to false</p>
-	 * <p>- heuristics is set to Heuristics.RANDOM</p>
+	 * <p>
+	 * - initialCapacity is set to 0
+	 * </p>
+	 * <p>
+	 * - initialFloor is set to lift.minFloor()
+	 * </p>
+	 * <p>
+	 * - doorOpen is set to false
+	 * </p>
+	 * <p>
+	 * - heuristics is set to Heuristics.RANDOM
+	 * </p>
 	 * 
 	 * @param lift the lift to manage
 	 */
@@ -66,16 +86,31 @@ public class LiftManager {
 
 	/* Functions to manage lift state */
 
-	public int move() {
-		if (currentFloor != targetFloor) {
-			int distance = Math.abs(currentFloor - targetFloor);
+	/**
+	 * Move the lift to the target floor and calculate the time taken for the
+	 * movement.
+	 * Updates the current floor to the target floor after movement.
+	 * Updates the target floor to the next requested floor after movement.
+	 * 
+	 * @return the time taken for the movement
+	 */
+	public LiftEvolution move() {
+		int direction = 0, floorsTraveled = 0, timeTaken = 0;
 
-			if ()
-
-			return physics.movementTime(distance);
+		if (currentFloor != targetFloor && !isEmpty()) {
+			direction = (targetFloor == currentFloor) ? 0 : (targetFloor > currentFloor) ? 1 : -1; // Direction
+			floorsTraveled = Math.abs(currentFloor - targetFloor); // Floors traveled
+			timeTaken = physics.movementTime(floorsTraveled); // Time taken
 		}
 
-		return 0;
+		currentFloor = targetFloor;
+		this.requestedFloors.remove(targetFloor);
+
+		if (!requestedFloors.isEmpty()) {
+			targetFloor = heuristics.chooseTargetFloor(this);
+		}
+		
+		return new LiftEvolution(direction, floorsTraveled, timeTaken);
 	}
 
 	/**
@@ -84,6 +119,7 @@ public class LiftManager {
 	 * 
 	 * @param inPassengers  Passengers that would like to enter the lift
 	 * @param outPassengers Passengers that would like to exit the lift
+	 * 
 	 * @return The number of passengers left outside the lift (not able to enter
 	 *         because of max capacity), 0 if all passengers were able to enter.
 	 */
@@ -103,7 +139,7 @@ public class LiftManager {
 	}
 
 	/**
-	 * 	Update the current floor of the lift.
+	 * Update the current floor of the lift.
 	 * 
 	 * @param floor the new current floor
 	 */
@@ -134,7 +170,6 @@ public class LiftManager {
 	/**
 	 * Execute the lift movement based on the current heuristic.
 	 * 
-	 * @return the next target floor
 	 * @see Heuristics
 	 */
 	public int decideNextTargetFloor() {
@@ -143,12 +178,20 @@ public class LiftManager {
 		return nextFloor;
 	}
 
+	/**
+	 * Register a call request for the lift.
+	 * 
+	 * @param call the call request to register
+	 */
+	public void registerCall(esiee.lift.global.request.Call call) {
+		this.targetFloor = call.fromFloor();
+		this.requestedFloors.add(call.toFloor());
+	}
+
 	/* Functions to query about lift state */
 
 	/**
 	 * Check if the lift door is open.
-	 * 
-	 * @return true if the door is open, false otherwise
 	 */
 	public boolean isDoorOpen() {
 		return doorOpen;
@@ -156,11 +199,18 @@ public class LiftManager {
 
 	/**
 	 * Check if the lift is full.
-	 * 
-	 * @return true if the lift is full, false otherwise
 	 */
 	public boolean isFull() {
 		return currentCapacity >= lift.maxCapacity();
+	}
+
+	/**
+	 * Check if the lift is empty.
+	 * 
+	 * @return true if the lift is empty, false otherwise
+	 */
+	private boolean isEmpty() {
+		return currentCapacity == 0;
 	}
 
 	/**
@@ -174,8 +224,6 @@ public class LiftManager {
 
 	/**
 	 * Get the current floor of the lift.
-	 * 
-	 * @return current floor
 	 */
 	public int getCurrentFloor() {
 		return currentFloor;
@@ -183,17 +231,13 @@ public class LiftManager {
 
 	/**
 	 * Get the set of requested floors for the lift.
-	 * 
-	 * @return the set of requested floors
 	 */
 	public Set<Integer> getRequestedFloors() {
 		return requestedFloors;
 	}
-	
+
 	/**
 	 * Get the target floor of the lift.
-	 * 
-	 * @return target floor
 	 */
 	public int getTargetFloor() {
 		return targetFloor;
@@ -201,8 +245,6 @@ public class LiftManager {
 
 	/**
 	 * Get the current heuristic used by the lift manager.
-	 * 
-	 * @return the heuristic
 	 */
 	public Heuristics getHeuristics() {
 		return heuristics;
@@ -210,8 +252,6 @@ public class LiftManager {
 
 	/**
 	 * Get the lift being managed.
-	 * 
-	 * @return the lift instance
 	 */
 	public Lift getLift() {
 		return lift;

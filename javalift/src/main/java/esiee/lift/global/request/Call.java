@@ -1,4 +1,4 @@
-package esiee.lift.request;
+package esiee.lift.global.request;
 
 /**
  * Represents a call request in the lift system.

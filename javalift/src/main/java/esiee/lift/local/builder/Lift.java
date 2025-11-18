@@ -1,4 +1,4 @@
-package esiee.lift.builder;
+package esiee.lift.local.builder;
 
 /**
  * Represents a Lift with its properties.
