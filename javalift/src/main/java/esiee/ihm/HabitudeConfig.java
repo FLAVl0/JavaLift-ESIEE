@@ -1,7 +1,21 @@
 package esiee.ihm;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public record HabitudeConfig(int heure_d_min, int heure_d_max, int heure_a_min, int heure_a_max, ArrayList<String> work, boolean rand_work, boolean friend)implements ConfigurationData {
-
+/**
+ * Configuration des personnes et de leurs habitudes chargée depuis poi.json
+ */
+public record HabitudeConfig(
+    String journee,
+    int nombrePersonnes,
+    List<PersonneData> personnes
+) {
+    /**
+     * Données d'une personne depuis le JSON
+     */
+    public record PersonneData(
+        String id,
+        int etageInitial,
+        List<Integer> habitudes
+    ) {}
 }

@@ -1,9 +1,10 @@
 package esiee.ihm;
 
 import java.io.File;
-import java.util.Scanner;  
-import com.google.gson.Gson;
 import java.util.HashMap;
+import java.util.Scanner;
+
+import com.google.gson.Gson;
 
 public class Configuration {
 
@@ -21,7 +22,7 @@ public class Configuration {
             }
             scanner.close();
         } catch (Exception e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
         return content;
     }

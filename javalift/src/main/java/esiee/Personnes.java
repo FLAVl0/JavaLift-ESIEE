@@ -2,20 +2,36 @@ package esiee;
 
 import java.util.List;
 
+import esiee.lift.request.Call;
 
 public interface Personnes {
 
-    /** Identifiant unique de la personne. */
     String id();
-
-    /** Étape actuel de la personne. */
+    
     int etage();
-
-    /** Liste des habitudes de la personne. */
+    
     List<Habitude> habitudes();
-
-    /** Met à jour l’étage actuel. */
+    
     void setEtage(int nouvelEtage);
+
+    /**
+     * Convertit une habitude en Call pour l'ascenseur
+     */
+    default Call creerCallDepuisHabitude(Habitude habitude) {
+        int fromFloor = this.etage();
+        int toFloor = habitude.destination();
+        
+        if (fromFloor == toFloor) {
+            return null; // Pas besoin de déplacement
+        }
+        
+        return new Call(fromFloor, toFloor);
+    }
+
+    /**
+     * Vérifie si la personne doit se déplacer selon son habitude
+     */
+    default boolean doitSeDeplacer(Habitude habitude) {
+        return this.etage() != habitude.destination();
+    }
 }
-
-
