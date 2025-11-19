@@ -1,4 +1,4 @@
-package esiee.ihm;
+package esiee.config;
 
 public enum RecordList {
     SIMULATION("simulationConfig.json", SimulationConfig.class),

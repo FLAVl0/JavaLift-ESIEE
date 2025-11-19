@@ -1,9 +1,0 @@
-{
-    "capacity": 8,
-    "speed": 2,
-    "doorTime": 5,
-    "acceleration": 1,
-    "deceleration": 1,
-    "energyCost": 0.15,
-    "manufacturer": ""
-}
