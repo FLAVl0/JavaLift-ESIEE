@@ -6,11 +6,15 @@ public class PersonneSimple implements Personnes {
     private final String id;
     private int etage;
     private final List<Habitude> habitudes;
+    private boolean enDeplacement;
+    private Integer etageDestination;
 
     public PersonneSimple(String id, int etage, List<Habitude> habitudes) {
         this.id = id;
         this.etage = etage;
         this.habitudes = List.copyOf(habitudes);
+        this.enDeplacement = false;
+        this.etageDestination = null;
     }
 
     @Override
@@ -31,16 +35,29 @@ public class PersonneSimple implements Personnes {
     @Override
     public void setEtage(int nouvelEtage) {
         this.etage = nouvelEtage;
+        if (etageDestination != null && etageDestination == nouvelEtage) {
+            this.enDeplacement = false;
+            this.etageDestination = null;
+        }
+    }
+
+    public boolean estEnDeplacement() {
+        return enDeplacement;
+    }
+
+    public void deplacerVers(int destination) {
+        this.enDeplacement = true;
+        this.etageDestination = destination;
+    }
+
+    public Integer getDestination() {
+        return etageDestination;
     }
 
     @Override
     public String toString() {
-        return "PersonneSimple{" +
-                "id='" + id + '\'' +
-                ", etage=" + etage +
-                ", habitudes=" + habitudes +
-                '}';
+        String statut = enDeplacement ? " (→ étage " + etageDestination + ")" : "";
+        return "PersonneSimple{id='" + id + "', etage=" + etage + statut + 
+               ", habitudes=" + habitudes.size() + '}';
     }
 }
-
-

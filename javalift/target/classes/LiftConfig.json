@@ -1,9 +1,41 @@
 {
-    "capacity": 8,
-    "speed": 2,
-    "doorTime": 5,
-    "acceleration": 1,
-    "deceleration": 1,
-    "energyCost": 0.15,
-    "manufacturer": ""
+  "nombreAscenseurs": 3,
+  "ascenseurs": [
+    {
+      "id": "Lift-1",
+      "capacite": 8,
+      "vitesse": 2.0,
+      "accelerationMax": 5.0,
+      "vitessePorte": 1.0,
+      "tempsArretPorte": 1.0,
+      "retard": 0.15,
+      "etageInitial": 0,
+      "etageMax": 10,
+      "description": "Ascenseur principal"
+    },
+    {
+      "id": "Lift-2",
+      "capacite": 8,
+      "vitesse": 2.0,
+      "accelerationMax": 5.0,
+      "vitessePorte": 1.0,
+      "tempsArretPorte": 1.0,
+      "retard": 0.15,
+      "etageInitial": 5,
+      "etageMax": 10,
+      "description": "Ascenseur secondaire"
+    },
+    {
+      "id": "Lift-3",
+      "capacite": 6,
+      "vitesse": 1.8,
+      "accelerationMax": 4.5,
+      "vitessePorte": 1.0,
+      "tempsArretPorte": 1.0,
+      "retard": 0.20,
+      "etageInitial": 0,
+      "etageMax": 10,
+      "description": "Ascenseur de service"
+    }
+  ]
 }

@@ -1,7 +1,60 @@
 {
-    "nbFloors": 10,
-    "nbLifts": 2,
-    "floorHeight": 3,
-    "maxPeoplePerFloor": 20,
-    "randHabitant": true
+  "nombreEtages": 11,
+  "etages": [
+    {
+      "niveau": 0,
+      "capacite": 100,
+      "description": "Hall d'entrée / Rez-de-chaussée"
+    },
+    {
+      "niveau": 1,
+      "capacite": 45,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 2,
+      "capacite": 50,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 3,
+      "capacite": 40,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 4,
+      "capacite": 40,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 5,
+      "capacite": 35,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 6,
+      "capacite": 35,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 7,
+      "capacite": 30,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 8,
+      "capacite": 30,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 9,
+      "capacite": 25,
+      "description": "Appartements"
+    },
+    {
+      "niveau": 10,
+      "capacite": 25,
+      "description": "Penthouse"
+    }
+  ]
 }

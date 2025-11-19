@@ -22,7 +22,7 @@ public class Configuration {
             }
             scanner.close();
         } catch (Exception e) {
-            e.printStackTrace();
+           // e.printStackTrace();
         }
         return content;
     }

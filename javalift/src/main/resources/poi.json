@@ -1,0 +1,56 @@
+{
+  "journee": "SEMAINE",
+  "nombrePersonnes": 10,
+  "personnes": [
+    {
+      "id": "P001",
+      "etageInitial": 5,
+      "habitudes": [0, 1]
+    },
+    {
+      "id": "P002",
+      "etageInitial": 3,
+      "habitudes": [0, 1]
+    },
+    {
+      "id": "P003",
+      "etageInitial": 8,
+      "habitudes": [0, 1, 2]
+    },
+    {
+      "id": "P004",
+      "etageInitial": 2,
+      "habitudes": [3, 4]
+    },
+    {
+      "id": "P005",
+      "etageInitial": 10,
+      "habitudes": [0, 1]
+    },
+    {
+      "id": "P006",
+      "etageInitial": 6,
+      "habitudes": [0, 1, 5]
+    },
+    {
+      "id": "P007",
+      "etageInitial": 4,
+      "habitudes": [0, 1]
+    },
+    {
+      "id": "P008",
+      "etageInitial": 9,
+      "habitudes": [0, 1, 6]
+    },
+    {
+      "id": "P009",
+      "etageInitial": 7,
+      "habitudes": [2, 5]
+    },
+    {
+      "id": "P010",
+      "etageInitial": 1,
+      "habitudes": [3, 4, 6]
+    }
+  ]
+}
