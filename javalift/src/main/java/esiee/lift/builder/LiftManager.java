@@ -1,9 +1,9 @@
 package esiee.lift.builder;
 
-import esiee.lift.algorithm.Heuristics;
-
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+
+import esiee.lift.algorithm.Heuristics;
 
 public class LiftManager {
 
@@ -69,8 +69,6 @@ public class LiftManager {
 	public int move() {
 		if (currentFloor != targetFloor) {
 			int distance = Math.abs(currentFloor - targetFloor);
-
-			if ()
 
 			return physics.movementTime(distance);
 		}

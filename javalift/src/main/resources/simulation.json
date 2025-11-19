@@ -1,0 +1,10 @@
+{
+  "dureeSimulation": 43200,
+  "heureDebut": "06:00:00",
+  "heureFin": "22:00:00",
+  "vitesseSimulation": 1.0,
+  "loggingActif": true,
+  "affichageGraphique": false,
+  "intervalAffichage": 60,
+  "seed": 12345
+}

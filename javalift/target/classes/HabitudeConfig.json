@@ -1,13 +1,60 @@
 {
-    "heure_d_min": 8,
-    "heure_d_max": 10,
-    "heure_a_min": 17,
-    "heure_a_max": 19,
-    "work": [
-        "travail",
-        "ntravail",
-        "ttravail"
-    ],
-    "rand_work": false,
-    "friend": true
+  "habitudes": [
+    {
+      "id": 0,
+      "type": "SORTIE_BATIMENT",
+      "description": "Départ au travail le matin",
+      "debut": "08:00",
+      "fin": "08:30",
+      "destination": 0
+    },
+    {
+      "id": 1,
+      "type": "ENTREE_BATIMENT",
+      "description": "Retour du travail le soir",
+      "debut": "17:30",
+      "fin": "18:30",
+      "destination": -1
+    },
+    {
+      "id": 2,
+      "type": "DEPLACEMENT_INTERNE",
+      "description": "Pause déjeuner - visite ami",
+      "debut": "12:00",
+      "fin": "13:00",
+      "destination": 5
+    },
+    {
+      "id": 3,
+      "type": "INVITATION_ARRIVEE",
+      "description": "Arrivée d'un invité",
+      "debut": "15:00",
+      "fin": "15:15",
+      "destination": -1
+    },
+    {
+      "id": 4,
+      "type": "INVITATION_DEPART",
+      "description": "Départ de l'invité",
+      "debut": "17:00",
+      "fin": "17:30",
+      "destination": 0
+    },
+    {
+      "id": 5,
+      "type": "DEPLACEMENT_INTERNE",
+      "description": "Visite voisin du dessous",
+      "debut": "10:00",
+      "fin": "10:30",
+      "destination": -2
+    },
+    {
+      "id": 6,
+      "type": "DEPLACEMENT_INTERNE",
+      "description": "Visite voisin du dessus",
+      "debut": "16:00",
+      "fin": "16:30",
+      "destination": -3
+    }
+  ]
 }

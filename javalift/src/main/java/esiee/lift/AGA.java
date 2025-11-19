@@ -1,13 +1,14 @@
 package esiee.lift;
 
 import java.util.ArrayList;
-import esiee.lift.builder.*;
+
+import esiee.lift.builder.LiftManager;
 
 public class AGA {
 
 	/* Definition of the AGA class */
 
-	private final ArrayList<LiftManager> liftManagers = new ArrayList<LiftManager>(); // Starts empty (created via builder)
+	private final ArrayList<LiftManager> liftManagers = new ArrayList<>(); // Starts empty (created via builder)
 
 	/* Functions to manage global lift state */
 
