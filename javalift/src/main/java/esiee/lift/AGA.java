@@ -45,7 +45,7 @@ public class AGA {
 	public void respondToCall(Call call) {
 		if (call.specificLift()) {
 			liftManagers.stream()
-				.filter(lm -> lm.getLift().id().equals(call.liftId()))
+				.filter(lm -> lm.getLift().id() == call.liftId())
 				.findFirst()
 				.ifPresent(lm -> lm.registerCall(call));
 		} else {
