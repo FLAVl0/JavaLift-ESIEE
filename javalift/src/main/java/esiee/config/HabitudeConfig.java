@@ -1,4 +1,4 @@
-package esiee.ihm;
+package esiee.config;
 
 import java.util.ArrayList;
 
