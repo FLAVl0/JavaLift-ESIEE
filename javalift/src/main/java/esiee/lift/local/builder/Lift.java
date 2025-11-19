@@ -15,7 +15,7 @@ package esiee.lift.local.builder;
  * 
  * @see LiftManager
  */
-public record Lift(int maxCapacity, int maxSpeed, int doorTime, int acceleration, int deceleration, double energyCost, int minFloor, int maxFloor, String id) {
+public record Lift(int maxCapacity, int maxSpeed, int doorTime, int acceleration, int deceleration, double energyCost, int minFloor, int maxFloor, int id) {
 	/**
 	 * Method to get the number of floors the lift can serve.
 	 * 

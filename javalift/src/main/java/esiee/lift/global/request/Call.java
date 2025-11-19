@@ -3,7 +3,7 @@ package esiee.lift.global.request;
 /**
  * Represents a call request in the lift system.
  */
-public record Call(int fromFloor, int toFloor, boolean specificLift, String liftId) {
+public record Call(int fromFloor, int toFloor, boolean specificLift, int liftId) {
 
 	/**
 	 * General call request from a floor to another floor.
@@ -12,7 +12,7 @@ public record Call(int fromFloor, int toFloor, boolean specificLift, String lift
 	 * @param toFloor   the destination floor
 	 */
 	public Call(int fromFloor, int toFloor) {
-		this(fromFloor, toFloor, false, null);
+		this(fromFloor, toFloor, false, -1);
 	}
 
 	/**
@@ -22,7 +22,7 @@ public record Call(int fromFloor, int toFloor, boolean specificLift, String lift
 	 * @param toFloor   the destination floor
 	 * @param liftId    the identifier of the specific lift to call
 	 */
-	public Call(int fromFloor, int toFloor, String liftId) {
+	public Call(int fromFloor, int toFloor, int liftId) {
 		this(fromFloor, toFloor, true, liftId);
 	}
 }
