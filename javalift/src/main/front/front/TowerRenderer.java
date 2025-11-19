@@ -1,3 +1,6 @@
+/**
+ * Auto‑documented class TowerRenderer.
+ */
 package esiee.front;
 import java.util.List;
 

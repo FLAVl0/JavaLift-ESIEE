@@ -1,3 +1,6 @@
+/**
+ * Auto‑documented class TowerView.
+ */
 package esiee.front;
 import java.util.ArrayList;
 import java.util.List;
