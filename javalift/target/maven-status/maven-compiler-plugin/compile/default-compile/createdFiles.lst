@@ -3,6 +3,7 @@ esiee\config\RecordList.class
 esiee\lift\global\dispatcher\DispatcherStrategy.class
 esiee\Demo.class
 esiee\lift\local\Heuristics$1.class
+esiee\Test.class
 esiee\config\ConfigurationData.class
 esiee\front\FloorView.class
 esiee\front\TowerView.class
@@ -17,7 +18,6 @@ esiee\config\SimulationIHMv0.class
 esiee\config\HabitudeConfig$PersonneData.class
 esiee\config\HabitudeDefinitionConfig$HabitudeDefinition.class
 esiee\front\TowerRenderer.class
-esiee\lift\local\Heuristics$7.class
 esiee\config\TowerConfig.class
 esiee\config\SimulationIHM.class
 esiee\lift\local\Heuristics$4.class

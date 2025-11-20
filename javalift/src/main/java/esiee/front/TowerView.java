@@ -41,8 +41,7 @@ public class TowerView {
     private List<Integer> pendingDestFloors;
 
 
-    // étage destination
-    private int pendingDestFloor = -1;
+    private int pendingElevatorId = 0; 
 
 
 
@@ -131,10 +130,16 @@ public class TowerView {
         }
 
         // Ascenseur
-        ElevatorView elevator = new ElevatorView(ELEVATOR_X, totalHeight - FLOOR_HEIGHT - 40, 40, 60);
-        elevators.add(elevator);
-        root.getChildren().add(elevator.getShape());
+        ElevatorView elevator1 = new ElevatorView(ELEVATOR_X, totalHeight - FLOOR_HEIGHT - 40, 40, 60);
+        elevators.add(elevator1);
+        root.getChildren().add(elevator1.getShape());
 
+        ElevatorView elevator2 = new ElevatorView(ELEVATOR_X2, totalHeight - FLOOR_HEIGHT - 40, 40, 60);
+        elevators.add(elevator2);
+        root.getChildren().add(elevator2.getShape());
+
+        elevators.add(elevator1);
+        elevators.add(elevator2);
        
 
         // Listener
@@ -235,7 +240,7 @@ public class TowerView {
                 if (entries.isEmpty()) {
 
                     ParallelTransition pt = new ParallelTransition();
-                    pt.getChildren().add(renderer.moveElevatorToFloor(destFloor));
+                    pt.getChildren().add(renderer.moveElevatorToFloor(elevator1, destFloor));
 
                     for (int i = 0; i < boarded.size(); i++) {
                         int pid = boarded.get(i);
@@ -257,7 +262,7 @@ public class TowerView {
 
 
                 ParallelTransition goPick = new ParallelTransition();
-                goPick.getChildren().add(renderer.moveElevatorToFloor(floor));
+                goPick.getChildren().add(renderer.moveElevatorToFloor(elevator1,floor));
 
                 for (int i = 0; i < boarded.size(); i++) {
                     int bid = boarded.get(i);
@@ -315,7 +320,7 @@ public class TowerView {
                     return;
                 }
                 if (renderer.getCurrentElevatorFloor() != startFloor) {
-                    TranslateTransition moveLift = renderer.moveElevatorToFloor(startFloor);
+                    TranslateTransition moveLift = renderer.moveElevatorToFloor(elevator1,startFloor);
                     moveLift.setOnFinished(ev -> renderer.move(selectedPersonIds, startFloor, endFloor));
                 } else {
                     renderer.move(selectedPersonIds, startFloor, endFloor);
@@ -330,7 +335,7 @@ public class TowerView {
         varButton.setOnAction(e -> {
             if (renderer != null) {
                 int randomFloor = (int) (Math.random() * 9); // etage aleatoire entre 0 et 9
-                renderer.moveElevatorToFloor(randomFloor);
+                renderer.moveElevatorToFloor(elevator1,randomFloor);
             }
         });
 
@@ -392,9 +397,10 @@ public class TowerView {
     }
 
 
-    public void scheduleExternalAction(List<Integer> personIds, List<Integer> destFloors) {
+    public void scheduleExternalAction(List<Integer> personIds, List<Integer> destFloors, int elevatorId) {
         this.pendingPersonIds = new ArrayList<>(personIds);
         this.pendingDestFloors = new ArrayList<>(destFloors);
+        this.pendingElevatorId = elevatorId; // stocke l'ascenseur choisi
         this.actionPending = true;
         this.actionCompleted = false;
     }
@@ -432,138 +438,147 @@ public class TowerView {
         return actionPending;
     }
 
-public void processExternalAction() {
-    if (!actionPending || renderer == null) return;
+    public void processExternalAction() {
+        if (!actionPending || renderer == null) return;
 
-    List<Integer> ids = new ArrayList<>(pendingPersonIds);
-    List<Integer> dests = new ArrayList<>(pendingDestFloors); // Destination individuelle
-    if (ids.isEmpty()) {
-        notifyActionCompleted();
-        return;
-    }
+        List<Integer> ids = new ArrayList<>(pendingPersonIds);
+        List<Integer> dests = new ArrayList<>(pendingDestFloors); // Destination individuelle
+        if (ids.isEmpty()) {
+            notifyActionCompleted();
+            return;
+        }
 
-    selectedPersonIds = ids;
-    List<Integer> boarded = new ArrayList<>();
-    double baseX = getElevator_X();
+        selectedPersonIds = ids;
+        List<Integer> boarded = new ArrayList<>();
+        ElevatorView elevator = elevators.get(pendingElevatorId);
+        double baseX = elevator.getBaseX();
 
-    // --- Création des entrées avec étage de départ et destination ---
-    class Entry { int pid; int fromFloor; int toFloor; Entry(int p, int f, int t){ pid=p; fromFloor=f; toFloor=t; } }
-    List<Entry> entries = new ArrayList<>();
-    for (int i = 0; i < ids.size(); i++) {
-        int pid = ids.get(i);
-        int from = getPersonById(pid).getFloor(); // étage dynamique
-        int to = dests.get(i);
-        entries.add(new Entry(pid, from, to));
-    }
+        // --- Création des entrées avec étage de départ et destination ---
+        class Entry { int pid; int fromFloor; int toFloor; Entry(int p, int f, int t){ pid=p; fromFloor=f; toFloor=t; } }
+        List<Entry> entries = new ArrayList<>();
+        for (int i = 0; i < ids.size(); i++) {
+            int pid = ids.get(i);
+            int from = getPersonById(pid).getFloor(); // étage dynamique
+            int to = dests.get(i);
+            entries.add(new Entry(pid, from, to));
+        }
 
-    Runnable[] step = new Runnable[1];
-    step[0] = new Runnable() {
-        @Override
-        public void run() {
-            // --- Tout est terminé ---
-            if (entries.isEmpty() && boarded.isEmpty()) {
-                notifyActionCompleted();
-                runNextAction();
-                return;
-            }
-
-            // --- Récupérer toutes les personnes au même étage ---
-            if (!entries.isEmpty()) {
-                int currentFloor = getPersonById(entries.get(0).pid).getFloor(); // dynamique
-                List<Entry> toBoard = new ArrayList<>();
-                while (!entries.isEmpty() && getPersonById(entries.get(0).pid).getFloor() == currentFloor) {
-                    toBoard.add(entries.remove(0));
+        Runnable[] step = new Runnable[1];
+        step[0] = new Runnable() {
+            @Override
+            public void run() {
+                // --- Tout est terminé ---
+                if (entries.isEmpty() && boarded.isEmpty()) {
+                    notifyActionCompleted();
+                    runNextAction();
+                    return;
                 }
 
-                // Monter l’ascenseur et déplacer les personnes déjà embarquées
-                ParallelTransition goToFloor = new ParallelTransition();
-                goToFloor.getChildren().add(renderer.moveElevatorToFloor(currentFloor));
-                for (int i = 0; i < boarded.size(); i++) {
-                    int pid = boarded.get(i);
-                    double px = baseX + 20 + i * 1;
-                    goToFloor.getChildren().add(renderer.movePersonTo(pid, currentFloor, px));
-                }
-
-                goToFloor.setOnFinished(ev -> {
-                    // Faire entrer toutes les personnes du même étage
-                    SequentialTransition enterAll = new SequentialTransition();
-                    for (Entry e : toBoard) {
-                        double enterX = baseX + 20 + boarded.size() * 1;
-                        TranslateTransition enter = renderer.movePersonTo(e.pid, currentFloor, enterX);
-                        enter.setOnFinished(ev2 -> {
-                            boarded.add(e.pid);
-                            // Mise à jour immédiate de l’étage pour synchronisation
-                            getPersonById(e.pid).setFloor(currentFloor);
-                            demo.personnes.get(e.pid).setEtage(currentFloor);
-                        });
-                        enterAll.getChildren().add(enter);
-                    }
-                    enterAll.setOnFinished(ev2 -> step[0].run());
-                    enterAll.play();
-                });
-
-                goToFloor.play();
-                return;
-            }
-
-            // --- Déplacer les personnes embarquées vers leurs destinations ---
-            if (!boarded.isEmpty()) {
-                // Identifier le prochain arrêt (le plus proche selon direction)
-                int nextStop = boarded.stream()
-                        .map(pid -> dests.get(ids.indexOf(pid)))
-                        .min(Integer::compareTo)
-                        .orElse(boarded.get(0));
-
-                final int stopFloor = nextStop;
-
-                ParallelTransition moveElevator = new ParallelTransition();
-                moveElevator.getChildren().add(renderer.moveElevatorToFloor(stopFloor));
-
-                // Déplacer toutes les personnes embarquées avec l’ascenseur
-                for (int i = 0; i < boarded.size(); i++) {
-                    int pid = boarded.get(i);
-                    double px = baseX + 20 + i * 1;
-                    moveElevator.getChildren().add(renderer.movePersonTo(pid, stopFloor, px));
-                }
-
-                moveElevator.setOnFinished(ev -> {
-                    // Identifier les personnes qui doivent sortir à cet étage
-                    List<Integer> toExit = new ArrayList<>();
-                    for (int pid : boarded) {
-                        if (dests.get(ids.indexOf(pid)) == stopFloor) toExit.add(pid);
+                // --- Récupérer toutes les personnes au même étage ---
+                if (!entries.isEmpty()) {
+                    int currentFloor = getPersonById(entries.get(0).pid).getFloor(); // dynamique
+                    List<Entry> toBoard = new ArrayList<>();
+                    while (!entries.isEmpty() && getPersonById(entries.get(0).pid).getFloor() == currentFloor) {
+                        toBoard.add(entries.remove(0));
                     }
 
-                    if (!toExit.isEmpty()) {
-                        ParallelTransition exitTransition = new ParallelTransition();
-                        for (int pid : toExit) {
-                            double px = baseX + 160 + stopFloor * 10; // décalage X selon étage
-                            exitTransition.getChildren().add(renderer.movePersonTo(pid, stopFloor, px));
+                    // Monter l’ascenseur et déplacer les personnes déjà embarquées
+                    ParallelTransition goToFloor = new ParallelTransition();
+                    goToFloor.getChildren().add(renderer.moveElevatorToFloor(elevator, currentFloor));
+                    for (int i = 0; i < boarded.size(); i++) {
+                        int pid = boarded.get(i);
+                        double px = baseX + 20 + i * 1;
+                        goToFloor.getChildren().add(renderer.movePersonTo(pid, currentFloor, px));
+                    }
+
+                    goToFloor.setOnFinished(ev -> {
+                        // Faire entrer toutes les personnes du même étage
+                        SequentialTransition enterAll = new SequentialTransition();
+                        for (Entry e : toBoard) {
+                            double enterX = baseX + 20 + boarded.size() * 1;
+                            TranslateTransition enter = renderer.movePersonTo(e.pid, currentFloor, enterX);
+                            enter.setOnFinished(ev2 -> {
+                                boarded.add(e.pid);
+                                // Mise à jour immédiate de l’étage pour synchronisation
+                                getPersonById(e.pid).setFloor(currentFloor);
+                                demo.personnes.get(e.pid).setEtage(currentFloor);
+                            });
+                            enterAll.getChildren().add(enter);
+                        }
+                        enterAll.setOnFinished(ev2 -> step[0].run());
+                        enterAll.play();
+                    });
+
+                    goToFloor.play();
+                    return;
+                }
+
+                // --- Déplacer les personnes embarquées vers leurs destinations ---
+                if (!boarded.isEmpty()) {
+                    // Identifier le prochain arrêt (le plus proche selon direction)
+                    int nextStop = boarded.stream()
+                            .map(pid -> dests.get(ids.indexOf(pid)))
+                            .min(Integer::compareTo)
+                            .orElse(boarded.get(0));
+
+                    final int stopFloor = nextStop;
+
+                    ParallelTransition moveElevator = new ParallelTransition();
+                    moveElevator.getChildren().add(renderer.moveElevatorToFloor(elevator, stopFloor));
+
+                    // Déplacer toutes les personnes embarquées avec l’ascenseur
+                    for (int i = 0; i < boarded.size(); i++) {
+                        int pid = boarded.get(i);
+                        double px = baseX + 20 + i * 1;
+                        moveElevator.getChildren().add(renderer.movePersonTo(pid, stopFloor, px));
+                    }
+
+                    moveElevator.setOnFinished(ev -> {
+                        // Identifier les personnes qui doivent sortir à cet étage
+                        List<Integer> toExit = new ArrayList<>();
+                        for (int pid : boarded) {
+                            if (dests.get(ids.indexOf(pid)) == stopFloor) toExit.add(pid);
                         }
 
-                        exitTransition.setOnFinished(ev2 -> {
+                        if (!toExit.isEmpty()) {
+                            double px;
+                            ParallelTransition exitTransition = new ParallelTransition();
                             for (int pid : toExit) {
-                                boarded.remove(Integer.valueOf(pid));
-                                getPersonById(pid).setFloor(stopFloor);
-                                demo.personnes.get(pid).setEtage(stopFloor);
+                                if (elevator.getBaseX() == ELEVATOR_X) {
+                                    px = baseX + 160 + stopFloor * 10; // décalage X selon étage
+                                } else {
+                                    px = baseX - 160 + stopFloor * 10; // décalage X selon étage
+                                }
+                                
+                                exitTransition.getChildren().add(renderer.movePersonTo(pid, stopFloor, px));
                             }
+
+                            exitTransition.setOnFinished(ev2 -> {
+                                for (int pid : toExit) {
+                                    boarded.remove(Integer.valueOf(pid));
+                                    getPersonById(pid).setFloor(stopFloor);
+                                    demo.personnes.get(pid).setEtage(stopFloor);
+                                }
+                                step[0].run();
+                            });
+
+                            exitTransition.play();
+                        } else {
                             step[0].run();
-                        });
+                        }
+                    });
 
-                        exitTransition.play();
-                    } else {
-                        step[0].run();
-                    }
-                });
-
-                moveElevator.play();
+                    moveElevator.play();
+                }
             }
-        }
-    };
+        };
 
-    enqueueAction(step[0]);
-}
+        enqueueAction(step[0]);
+    }
 
-
+    public List<ElevatorView> getElevators() {
+        return elevators;
+    }
 
 
     public Rectangle createFloor0Mask() {

@@ -2,6 +2,7 @@ package esiee;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import esiee.front.TowerView;
 
@@ -199,45 +200,50 @@ public class Demo {
         }    
     }
     public void startAutomaticSimulation(TowerView view) {
-        new Thread(() -> {
-            while (true) {
-                try { Thread.sleep(1500); } catch (Exception e) {}
+    new Thread(() -> {
+        Random rand = new Random();
+        while (true) {
+            try { Thread.sleep(1500); } catch (Exception e) {}
 
-                // --- Choisir un étage aléatoire
-                int floor = (int)(Math.random() * etages.size());
+            // --- Choisir un étage aléatoire
+            int floor = rand.nextInt(etages.size());
 
-                // --- Récupérer toutes les personnes présentes à cet étage
-                List<Integer> idsAtFloor = new ArrayList<>();
-                for (Personnes p : personnes) {
-                    if (p.etage() == floor) {
-                        idsAtFloor.add(p.getId() - 1);
-                    }
+            // --- Récupérer toutes les personnes présentes à cet étage
+            List<Integer> idsAtFloor = new ArrayList<>();
+            for (Personnes p : personnes) {
+                if (p.etage() == floor) {
+                    idsAtFloor.add(p.getId() - 1);
                 }
-
-                if (idsAtFloor.isEmpty()) continue;
-
-                List<Integer> ids = new ArrayList<>();
-                List<Integer> dests = new ArrayList<>();
-                for (int i = 0; i < 3; i++) { // exemple : 3 personnes à déplacer
-                    int pid = (int)(Math.random() * personnes.size());
-                    int dest = (int)(Math.random() * etages.size());
-                    if (dest == 0) dest = 1; // éviter le RDC
-                    while (dest == personnes.get(pid).etage())
-                        dest = (int)(Math.random() * etages.size());
-                    ids.add(personnes.get(pid).getId() - 1);
-                    dests.add(dest);
-                }
-
-                final List<Integer> finalIds = ids;
-                final List<Integer> finalDests = dests;
-                javafx.application.Platform.runLater(() -> {
-                    view.scheduleExternalAction(finalIds, finalDests);
-                    view.processExternalAction();
-                });
-
             }
-        }).start();
-    }
+            if (idsAtFloor.isEmpty()) continue;
+
+            // --- Choisir quelques personnes à déplacer (ex: 3)
+            List<Integer> ids = new ArrayList<>();
+            List<Integer> dests = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                int pid = rand.nextInt(personnes.size());
+                int dest = rand.nextInt(etages.size());
+                if (dest == 0) dest = 1; // éviter le RDC
+                while (dest == personnes.get(pid).etage())
+                    dest = rand.nextInt(etages.size());
+                ids.add(personnes.get(pid).getId() - 1);
+                dests.add(dest);
+            }
+
+            // --- Choisir aléatoirement un ascenseur
+            int elevatorId = rand.nextInt(view.getElevators().size()); // index du ascenseur
+
+            final List<Integer> finalIds = ids;
+            final List<Integer> finalDests = dests;
+            final int finalElevatorId = elevatorId;
+            javafx.application.Platform.runLater(() -> {
+                view.scheduleExternalAction(finalIds, finalDests, finalElevatorId);
+                view.processExternalAction();
+            });
+        }
+    }).start();
+}
+
 
 
 

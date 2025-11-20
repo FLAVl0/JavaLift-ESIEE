@@ -33,11 +33,11 @@ public class TowerRenderer {
         }
     }
 
-    public TranslateTransition moveElevator(int elevatorId, int targetFloor) {
-    double y = view.getFloorY(targetFloor);
-        TranslateTransition tt = view.getElevator(elevatorId).moveToY(y - 40); // moveToY doit retourner la Transition
-        return tt;
-    }
+    public TranslateTransition moveElevator(ElevatorView elevator, int targetFloor) {
+        double y = view.getFloorY(targetFloor);
+            TranslateTransition tt = elevator.moveToY(y - 40); // moveToY doit retourner la Transition
+            return tt;
+        }
 
 
     public TranslateTransition movePersonTo(int personId, int targetFloor, double targetX) {
@@ -48,7 +48,7 @@ public class TowerRenderer {
 
 
     public void initialize() {
-        moveElevator(0, 0);
+        moveElevator(view.getElevator(0), 0);
         movePersonTo(0, 0, 80);
         movePersonTo(1, 0, 120);
         // Initialisation si nécessaire
@@ -97,11 +97,13 @@ public void setCurrentElevatorFloor(int floor) {
     currentElevatorFloor = floor;
 }
 
-public TranslateTransition moveElevatorToFloor(int targetFloor) {
-    TranslateTransition tt = moveElevator(0, targetFloor);
-    setCurrentElevatorFloor(targetFloor);
+public TranslateTransition moveElevatorToFloor(ElevatorView elevator, int targetFloor) {
+    TranslateTransition tt = moveElevator(elevator, targetFloor);
+    // Mettre à jour l’étage spécifique à cet ascenseur
+    elevator.setCurrentFloor(targetFloor);
     return tt;
 }
+
 
 public void fullUp(List<Integer> personIds, int startFloor, int endFloor) {
     double baseX = view.getElevator_X();
@@ -116,7 +118,7 @@ public void fullUp(List<Integer> personIds, int startFloor, int endFloor) {
             .moveTo(baseX + 20, view.getFloorY(startFloor) - 20);
 
     firstPersonMove.setOnFinished(e -> {
-        TranslateTransition elevatorMove = moveElevatorToFloor(endFloor);
+        TranslateTransition elevatorMove = moveElevatorToFloor(view.getElevator(0),endFloor);
 
         ParallelTransition liftUp = new ParallelTransition();
         liftUp.getChildren().add(elevatorMove);
@@ -152,7 +154,7 @@ public void fullDown(List<Integer> personIds, int startFloor, int endFloor) {
 
     firstPersonMove.setOnFinished(e -> {
         // Ascenseur et personnes descendent en parallèle
-        TranslateTransition elevatorMove = moveElevatorToFloor(endFloor);
+        TranslateTransition elevatorMove = moveElevatorToFloor(view.getElevator(0),endFloor);
 
         ParallelTransition liftDown = new ParallelTransition();
         liftDown.getChildren().add(elevatorMove);
@@ -190,7 +192,7 @@ public void move(List<Integer> personIds, int startFloor, int endFloor) {
             .moveTo(baseX + 20, view.getFloorY(startFloor) - 20);
 
     firstPersonMove.setOnFinished(e -> {
-        TranslateTransition elevatorMove = moveElevatorToFloor(endFloor);
+        TranslateTransition elevatorMove = moveElevatorToFloor(view.getElevator(0), endFloor);
 
         ParallelTransition liftTransition = new ParallelTransition();
         liftTransition.getChildren().add(elevatorMove);
@@ -238,7 +240,7 @@ public void waitLift(List<Integer> personIds, int floor) {
     }
 
     public void actionTwo() {
-        moveElevator(0, 5);
+        moveElevator(view.getElevator(0), 5);
         movePersonTo(0, 5, 150);
     }
 }

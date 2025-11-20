@@ -6,11 +6,13 @@ import javafx.util.Duration;
 
 public class ElevatorView {
     private final Rectangle shape;
-
+    private final double baseX;
+    private int currentFloor = 0;
     public ElevatorView(double x, double y, double w, double h) {
         shape = new Rectangle(x, y, w, h);
         shape.setFill(Color.LIGHTSTEELBLUE);
         shape.setStroke(Color.BLACK);
+        baseX = x;
     }
 
     public Rectangle getShape() { return shape; }
@@ -20,5 +22,14 @@ public class ElevatorView {
         move.setToY(y - shape.getY());
         move.play();
         return move;
+    }
+    public int getCurrentFloor() {
+        return currentFloor;
+    }
+    public void setCurrentFloor(int floor) {
+        this.currentFloor = floor;
+    }
+    public double getBaseX() {
+        return baseX;
     }
 }
