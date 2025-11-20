@@ -8,8 +8,10 @@ public class PersonView {
     private final Circle shape;
     private int floor;
     private final int floorDest;
+    private final int id;
 
-    public PersonView(double x, double y, Color color, int floor, int floorDest) {
+    public PersonView(int id ,double x, double y, Color color, int floor, int floorDest) {
+        this.id = id;
         this.floor = floor;
         this.floorDest = floorDest;
         shape = new Circle(x, y, 8, color);
@@ -20,7 +22,7 @@ public class PersonView {
     public void setFloor(int floor) {
         this.floor = floor;  
     } 
-        
+    public int getId() { return id; }
     public int getFloorDest() { return floorDest; }
     public TranslateTransition moveTo(double x, double y) {
         TranslateTransition move = new TranslateTransition(Duration.seconds(1), shape);

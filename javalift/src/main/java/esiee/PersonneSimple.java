@@ -3,13 +3,13 @@ package esiee;
 import java.util.List;
 
 public class PersonneSimple implements Personnes {
-    private final String id;
+    private final int id;
     private int etage;
     private final List<Habitude> habitudes;
     private boolean enDeplacement;
     private Integer etageDestination;
 
-    public PersonneSimple(String id, int etage, List<Habitude> habitudes) {
+    public PersonneSimple(int id, int etage, List<Habitude> habitudes) {
         this.id = id;
         this.etage = etage;
         this.habitudes = List.copyOf(habitudes);
@@ -18,7 +18,7 @@ public class PersonneSimple implements Personnes {
     }
 
     @Override
-    public String id() {
+    public int getId() {
         return id;
     }
 

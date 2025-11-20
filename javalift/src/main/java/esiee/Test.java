@@ -1,7 +1,7 @@
 package esiee;
 
 import esiee.lift.AGA;
-import esiee.lift.builder.*;
+import esiee.lift.local.builder.*;
 
 public class Test {
 	public static void main(String[] args) {

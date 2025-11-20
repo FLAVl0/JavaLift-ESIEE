@@ -10,7 +10,7 @@ import esiee.Etage;
 import esiee.Habitude;
 import esiee.PersonneSimple;
 import esiee.Personnes;
-import esiee.lift.request.Call;
+import esiee.lift.global.request.Call;
 
 public class Tower {
     
@@ -72,7 +72,7 @@ public class Tower {
             }
             
             Personnes personne = new PersonneSimple(
-                personneData.id(),
+                personneData.getId(),
                 personneData.etageInitial(),
                 habitudes
             );
@@ -83,7 +83,7 @@ public class Tower {
                 etages.get(personneData.etageInitial()).ajouterPersonne(personne);
             }
             
-            System.out.println("✓ Personne chargée: " + personne.id() + 
+            System.out.println("✓ Personne chargée: " + personne.getId() + 
                 " à l'étage " + personne.etage() + 
                 " avec " + habitudes.size() + " habitude(s)");
         }
@@ -174,7 +174,7 @@ public class Tower {
                 
                 List<String> ids = new ArrayList<>();
                 for (Personnes p : etage.personnes()) {
-                    ids.add(p.id());
+                    ids.add(p.getId());
                 }
                 System.out.println(" [" + String.join(", ", ids) + "]");
             }
