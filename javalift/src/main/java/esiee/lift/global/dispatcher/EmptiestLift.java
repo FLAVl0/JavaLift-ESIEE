@@ -4,17 +4,14 @@ import esiee.lift.global.request.Call;
 import esiee.lift.local.builder.LiftManager;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
-public class ClosestLift implements Dispatcher {
-
+public class EmptiestLift implements Dispatcher {
+	
 	@Override
 	public LiftManager selectLift(Call call, ArrayList<LiftManager> liftManagers) {
-		int fromFloor = call.fromFloor();
-
 		return liftManagers.stream()
-				.filter(lm -> !lm.isFull())
-				.min(Comparator.comparingInt(lm -> Math.abs(lm.currentFloor() - fromFloor)))
+				.min((lm1, lm2) -> Integer
+					.compare(lm1.currentCapacity(), lm2.currentCapacity()))
 				.get();
 	}
 }

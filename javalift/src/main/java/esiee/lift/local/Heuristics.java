@@ -1,5 +1,8 @@
 package esiee.lift.local;
 
+import java.util.Comparator;
+import java.util.Optional;
+
 import esiee.lift.local.builder.*;
 
 /**
@@ -26,6 +29,24 @@ public enum Heuristics {
 		}
 	},
 
+	SHORTEST_ON_WAY {
+		@Override
+		public int chooseTargetFloor(LiftManager lm) {
+			int currentFloor = lm.currentFloor();
+			int direction = lm.direction();
+
+			Optional<Integer> inDirection = lm.requestedFloors().stream()
+					.filter(f -> direction != 0 && Integer.signum(f - currentFloor) == direction)
+					.min(Comparator.comparingInt(f -> Math.abs(f - currentFloor)));
+
+			return inDirection.orElseGet(() -> 
+				lm.requestedFloors().stream()
+						.min(Comparator.comparingInt(f -> Math.abs(f - currentFloor)))
+						.orElse(currentFloor)
+			);
+		}
+	},
+
 	/* Choose to only board going up */
 
 	ALWAYS_UP {
@@ -49,16 +70,6 @@ public enum Heuristics {
 			return (currentFloor > lift.minFloor()) ? currentFloor - 1 : lift.maxFloor();
 		}
 	},
-
-	/* Minimize the number of stops */
-
-	ENERGY_SAVING {
-		@Override
-		public int chooseTargetFloor(LiftManager lm) {
-			// Placeholder logic for energy saving heuristic
-			return lm.currentFloor();
-		}
-	},
 	
 	/* Random choice */
 	
@@ -75,8 +86,26 @@ public enum Heuristics {
 	FIFO {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
-			// Placeholder logic for FIFO heuristic
-			return 0;
+			return lm.requestedFloors().getLast();
+		}
+	},
+
+	/* LIFO */
+
+	LIFO {
+		@Override
+		public int chooseTargetFloor(LiftManager lm) {
+			return lm.requestedFloors().getFirst();
+		}
+	},
+
+	/* New heuristic */
+
+	NEW_HEURISTIC {
+		@Override
+		public int chooseTargetFloor(LiftManager lm) {
+			int nextDest = 0;
+			return nextDest;
 		}
 	};
 

@@ -1,6 +1,6 @@
 package esiee.lift.local;
 
-public record LiftEvolution(int direction, int floorsTraveled, int timeTaken) {
+public record LiftResponse(int id, int direction, int floorsTraveled, int timeTaken) {
 	/**
 	 * Constructor for LiftEvolution record. Performs validation on parameters.
 	 * 
@@ -9,7 +9,7 @@ public record LiftEvolution(int direction, int floorsTraveled, int timeTaken) {
 	 * @param floorsTraveled The number of floors traveled during the movement
 	 * @param timeTaken      The time taken for the movement
 	 */
-	public LiftEvolution {
+	public LiftResponse {
 		if (direction < -1 || direction > 1) {
 			throw new IllegalArgumentException("Direction must be -1, 0, or 1");
 		}

@@ -3,6 +3,7 @@ package esiee.lift;
 import java.util.ArrayList;
 
 import esiee.lift.global.dispatcher.DispatcherStrategy;
+import esiee.lift.local.LiftResponse;
 import esiee.lift.local.builder.LiftManager;
 import esiee.lift.local.builder.LiftManagerBuilder;
 import esiee.lift.global.request.Call;
@@ -43,18 +44,25 @@ public class AGA {
 		this.dispatcherStrategy = strategy;
 	}
 
-	public void respondToCall(Call call) {
+	/**
+	 * Function to handle calls accordingly with the chosen dispatcher strategy.
+	 * Will return the ID of the selected lift for the UI to update.
+	 * 
+	 * @param call the call that was just triggered, containing from and to floors.
+	 * 
+	 * @return the LiftResponse (id + information about physical evolution)
+	 */
+	public LiftResponse respondToCall(Call call) {
 		int fromFloor = call.fromFloor();
 		int toFloor = call.toFloor();
 
-		if (call.specificLift()) {
-			liftManagers.stream()
-				.filter(lm -> lm.lift().id() == call.liftId())
-				.findFirst()
-				.ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
-		} else {
-			dispatcherStrategy.createDispatcher().selectLift(call, liftManagers).ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
-		}
+		LiftManager selectedLiftManager = call.specificLift()
+				? liftManagers.stream().filter(lm -> lm.lift().id() == call.liftId()).findFirst().get()
+				: dispatcherStrategy.createDispatcher().selectLift(call, liftManagers);
+
+		selectedLiftManager.registerCall(fromFloor, toFloor);
+		
+		return selectedLiftManager.move();
 	}
 
 	/* Getters */

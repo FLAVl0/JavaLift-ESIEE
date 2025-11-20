@@ -4,7 +4,6 @@ import esiee.lift.global.request.Call;
 import esiee.lift.local.builder.LiftManager;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
 public interface Dispatcher {
 	/**
@@ -16,5 +15,5 @@ public interface Dispatcher {
 	 * @return an Optional containing the selected LiftManager, or empty if no
 	 *         suitable lift is found
 	 */
-	Optional<LiftManager> selectLift(Call call, ArrayList<LiftManager> liftManagers);
+	LiftManager selectLift(Call call, ArrayList<LiftManager> liftManagers);
 }

@@ -1,7 +1,7 @@
 package esiee.lift.local.builder;
 
 import esiee.lift.local.Heuristics;
-import esiee.lift.local.LiftEvolution;
+import esiee.lift.local.LiftResponse;
 import esiee.lift.local.LiftPhysics;
 
 import java.util.LinkedHashSet;
@@ -18,7 +18,7 @@ public class LiftManager {
 	private final LinkedHashSet<Integer> requestedFloors; // Contains all the floors that were requested (independent from )
 	
 	private int targetFloor; // Contains the next target for the move() method
-	private byte direction; // Will contain 0 (idle), 1 (up), or -1 (down)
+	private int direction; // Will contain 0 (idle), 1 (up), or -1 (down)
 
 	private Heuristics heuristics; // The heuristic the current Lift follows (responsible of determining next targetFloor)
 
@@ -94,12 +94,12 @@ public class LiftManager {
 	 * 
 	 * @return the time taken for the movement
 	 */
-	public LiftEvolution move() {
+	public LiftResponse move() {
 		
 		this.direction = (byte) Integer.compare(targetFloor, currentFloor);
 
 		if (requestedFloors.isEmpty()) {
-			return new LiftEvolution(0, 0, 0); // No movement needed
+			return new LiftResponse(lift.id(), 0, 0, 0); // No movement needed
 		}
 		
 		// Calculate movement
@@ -111,7 +111,7 @@ public class LiftManager {
 		requestedFloors.remove(currentFloor);
 		targetFloor = heuristics.chooseTargetFloor(this);
 
-		return new LiftEvolution(direction, floorsTraveled, timeTaken);
+		return new LiftResponse(lift.id(), direction, floorsTraveled, timeTaken);
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class LiftManager {
 		return this.targetFloor;
 	}
 
-	public byte direction() {
+	public int direction() {
 		return this.direction;
 	}
 
