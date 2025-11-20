@@ -48,6 +48,7 @@ public class TowerView {
 
     private static final int FLOOR_HEIGHT = 80;
     private static final double ELEVATOR_X = 450;
+    private static final double ELEVATOR_X2 = 810;
 
     public TowerView(int numFloors, Demo demo) {
         this.demo = demo;
@@ -150,23 +151,18 @@ public class TowerView {
         HBox buttonBox = new HBox(20);
         buttonBox.setLayoutX(20);
 
-        // Champ pour saisir les IDs des personnes
         TextField personInput = new TextField();
         personInput.setPromptText("IDs (ex: 0,1,2)");
 
-        // Bouton pour valider les IDs
         Button setPersonsButton = new Button("Set Persons");
 
-        // Champ pour saisir l’étage de départ
         TextField startFloorInput = new TextField();
         startFloorInput.setPromptText("Start floor (ex: 0)");
 
-        // Bouton pour valider l’étage de départ
         Button setStartFloorButton = new Button("Set Start Floor");
         setStartFloorButton.setOnAction(ev -> {
             try {
                 Integer.parseInt(startFloorInput.getText().trim());
-                // Valeur validée, peut être utilisée par les boutons Up/Down
             } catch (NumberFormatException ex) {
                 System.out.println("Entree invalide pour l etage de depart.");
             }
@@ -181,7 +177,6 @@ public class TowerView {
         setDestFloorButton.setOnAction(ev -> {
             try {
                 Integer.parseInt(destFloorInput.getText().trim());
-                // Valeur validée, peut être utilisée par les boutons Up/Down
             } catch (NumberFormatException ex) {
                 System.out.println("Entree invalide pour l etage de destination.");
             }
@@ -280,13 +275,10 @@ public class TowerView {
                         boarded.add(pid);
                         step[0].run();
                     });
-
                     enter.play();
                 });
-
                 goPick.play();
             };
-
             step[0].run();
 
             // Mettre à jour l’étage des personnes
@@ -322,8 +314,6 @@ public class TowerView {
                     System.out.println("Entree invalide pour les etages.");
                     return;
                 }
-
-                // Deplacer l’ascenseur d’abord à l’etage de depart si necessaire
                 if (renderer.getCurrentElevatorFloor() != startFloor) {
                     TranslateTransition moveLift = renderer.moveElevatorToFloor(startFloor);
                     moveLift.setOnFinished(ev -> renderer.move(selectedPersonIds, startFloor, endFloor));
@@ -356,8 +346,7 @@ public class TowerView {
                     System.out.println("Entree invalide. Format attendu : 0,1,2");
                     return;
                 }
-                // Stocker la liste quelque part ou l’utiliser directement
-                selectedPersonIds = personIds; // selectedPersonIds est une variable List<Integer>
+                selectedPersonIds = personIds; 
             }
         });
 

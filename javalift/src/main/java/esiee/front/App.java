@@ -4,9 +4,21 @@ import esiee.Demo;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 /**
- * Hello world!
+ * Main JavaFX application entry point for the Tower Simulation.
  *
+ * This class initializes the graphical environment, creates the tower view,
+ * assigns its renderer, and displays the main window.
+ *
+ * Responsibilities:
+ * - Initialize JavaFX stage and scene
+ * - Instantiate the TowerView containing floors, elevator, and persons
+ * - Attach the TowerRenderer responsible for animations and logic
+ * - Configure window dimensions and display properties
+ *
+ * @see TowerView
+ * @see TowerRenderer
  */
 public class App extends Application {
     //private Demo demo;
@@ -54,6 +66,11 @@ public class App extends Application {
 
     }
 
+    /**
+     * Main application entry point (standard JVM launcher).
+     *
+     * @param args program arguments
+     */
     public static void main(String[] args) {
         System.out.println("Starting Tower Simulation...");
         launch(args);
