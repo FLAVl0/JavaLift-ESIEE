@@ -5,13 +5,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import esiee.ihm.Configuration;
-import esiee.ihm.ConfigurationRecord;
-import esiee.ihm.HabitudeDefinitionConfig;
-import esiee.ihm.RecordList;
-import esiee.ihm.SimulationConfig;
-import esiee.ihm.Tower;
-import esiee.lift.request.Call;
+import esiee.config.Configuration;
+import esiee.config.ConfigurationRecord;
+import esiee.config.HabitudeDefinitionConfig;
+import esiee.config.RecordList;
+import esiee.config.SimulationConfig;
+import esiee.config.Tower;
+import esiee.lift.global.request.Call;
 
 /**
  * Simulation simplifiée focalisée sur les étages et personnes

@@ -25,7 +25,6 @@ public class LiftManagerBuilder {
 
 	private int initialCapacity = 0;
 	private Integer initialFloor = null;
-	private boolean doorOpen = false;
 	private Heuristics heuristics = Heuristics.RANDOM;
 
 	/* Methods */
@@ -93,11 +92,6 @@ public class LiftManagerBuilder {
 		return this;
 	}
 
-	public LiftManagerBuilder setDoorOpen(boolean doorOpen) {
-		this.doorOpen = doorOpen;
-		return this;
-	}
-
 	public LiftManagerBuilder setHeuristics(Heuristics heuristics) {
 		this.heuristics = heuristics;
 		return this;
@@ -121,7 +115,6 @@ public class LiftManagerBuilder {
 				lift,
 				initialCapacity,
 				startFloor,
-				doorOpen,
 				heuristics);
 	}
 }

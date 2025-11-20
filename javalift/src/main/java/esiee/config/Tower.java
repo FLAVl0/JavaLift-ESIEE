@@ -10,7 +10,7 @@ import esiee.Etage;
 import esiee.Habitude;
 import esiee.PersonneSimple;
 import esiee.Personnes;
-import esiee.lift.request.Call;
+import esiee.lift.global.request.Call;
 
 public class Tower {
     

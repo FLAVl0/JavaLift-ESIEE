@@ -2,7 +2,7 @@ package esiee;
 
 import java.util.List;
 
-import esiee.lift.request.Call;
+import esiee.lift.global.request.Call;
 
 public interface Personnes {
 

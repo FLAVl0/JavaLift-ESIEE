@@ -15,12 +15,14 @@ public enum Heuristics {
 	SHORTEST_PATH {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
-			int currentFloor = lm.getCurrentFloor(); // Get the current floor
+			int currentFloor = lm.currentFloor();
 
-			// Look for the closest target floor
-			int targetFloor = currentFloor;
-
-			return targetFloor; // Return the closest target floor
+			// Find the closest requested floor
+			return lm.requestedFloors().stream()
+				.min((f1, f2) -> Integer.compare(
+					Math.abs(f1 - currentFloor),
+					Math.abs(f2 - currentFloor)))
+				.orElse(currentFloor);
 		}
 	},
 
@@ -29,8 +31,8 @@ public enum Heuristics {
 	ALWAYS_UP {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
-			int currentFloor = lm.getCurrentFloor();
-			Lift lift = lm.getLift();
+			int currentFloor = lm.currentFloor();
+			Lift lift = lm.lift();
 
 			return (currentFloor < lift.maxFloor()) ? currentFloor + 1 : lift.minFloor();
 		}
@@ -41,8 +43,8 @@ public enum Heuristics {
 	ALWAYS_DOWN {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
-			int currentFloor = lm.getCurrentFloor();
-			Lift lift = lm.getLift();
+			int currentFloor = lm.currentFloor();
+			Lift lift = lm.lift();
 
 			return (currentFloor > lift.minFloor()) ? currentFloor - 1 : lift.maxFloor();
 		}
@@ -54,7 +56,7 @@ public enum Heuristics {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
 			// Placeholder logic for energy saving heuristic
-			return lm.getCurrentFloor();
+			return lm.currentFloor();
 		}
 	},
 	
@@ -64,7 +66,7 @@ public enum Heuristics {
 		@Override
 		public int chooseTargetFloor(LiftManager lm) {
 			// Placeholder logic for random choice heuristic
-			return (int) (Math.random() * lm.getLift().numberOfFloors());
+			return (int) (Math.random() * lm.lift().numberOfFloors());
 		}
 	},
 
@@ -75,15 +77,6 @@ public enum Heuristics {
 		public int chooseTargetFloor(LiftManager lm) {
 			// Placeholder logic for FIFO heuristic
 			return 0;
-		}
-	},
-
-	/* Just stay put */
-	
-	IDLE {
-		@Override
-		public int chooseTargetFloor(LiftManager lm) {
-			return lm.getCurrentFloor();
 		}
 	};
 
