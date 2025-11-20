@@ -4,8 +4,7 @@ import esiee.lift.local.Heuristics;
 import esiee.lift.local.LiftEvolution;
 import esiee.lift.local.LiftPhysics;
 
-import java.util.Set;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class LiftManager {
 
@@ -14,14 +13,14 @@ public class LiftManager {
 	private final Lift lift;
 	private final LiftPhysics physics;
 
-	private boolean doorOpen;
+	private int currentCapacity; // The current number of people onboard
+	private int currentFloor; // The current floor the lift is at
+	private final LinkedHashSet<Integer> requestedFloors; // Contains all the floors that were requested (independent from )
+	
+	private int targetFloor; // Contains the next target for the move() method
+	private byte direction; // Will contain 0 (idle), 1 (up), or -1 (down)
 
-	private int currentCapacity;
-	private int currentFloor;
-	private final Set<Integer> requestedFloors;
-	private int targetFloor;
-
-	private Heuristics heuristics;
+	private Heuristics heuristics; // The heuristic the current Lift follows (responsible of determining next targetFloor)
 
 	/**
 	 * Constructor for LiftManager with specified initial capacity and floor.
@@ -43,21 +42,22 @@ public class LiftManager {
 	 * @param lift            the lift to manage
 	 * @param initialCapacity the initial capacity of the lift
 	 * @param initialFloor    the initial floor of the lift
-	 * @param doorOpen        the initial door state of the lift
 	 * @param heuristics      the heuristic to use for target floor selection
 	 * 
 	 * @see esiee.lift.local.Heuristics
 	 * @see esiee.lift.AGA
 	 * @see esiee.lift.local.builder.Lift
 	 */
-	public LiftManager(Lift lift, int initialCapacity, int initialFloor, boolean doorOpen, Heuristics heuristics) {
+	public LiftManager(Lift lift, int initialCapacity, int initialFloor, Heuristics heuristics) {
 		this.lift = lift;
 		this.physics = new LiftPhysics(lift);
 
 		this.currentCapacity = initialCapacity;
 		this.currentFloor = initialFloor;
-		this.doorOpen = doorOpen;
-		this.requestedFloors = new HashSet<>(lift.numberOfFloors());
+		this.requestedFloors = new LinkedHashSet<>(lift.numberOfFloors());
+
+		this.targetFloor = initialFloor;
+		this.direction = 0;
 
 		this.heuristics = heuristics;
 	}
@@ -81,7 +81,7 @@ public class LiftManager {
 	 * @param lift the lift to manage
 	 */
 	public LiftManager(Lift lift) {
-		this(lift, 0, lift.minFloor(), false, Heuristics.RANDOM);
+		this(lift, 0, lift.minFloor(), Heuristics.RANDOM);
 	}
 
 	/* Functions to manage lift state */
@@ -95,165 +95,106 @@ public class LiftManager {
 	 * @return the time taken for the movement
 	 */
 	public LiftEvolution move() {
-		int direction = 0, floorsTraveled = 0, timeTaken = 0;
+		
+		this.direction = (byte) Integer.compare(targetFloor, currentFloor);
 
-		if (currentFloor != targetFloor && !isEmpty()) {
-			direction = (targetFloor == currentFloor) ? 0 : (targetFloor > currentFloor) ? 1 : -1; // Direction
-			floorsTraveled = Math.abs(currentFloor - targetFloor); // Floors traveled
-			timeTaken = physics.movementTime(floorsTraveled); // Time taken
-		}
-
-		currentFloor = targetFloor;
-		this.requestedFloors.remove(targetFloor);
-
-		if (!requestedFloors.isEmpty()) {
-			targetFloor = heuristics.chooseTargetFloor(this);
+		if (requestedFloors.isEmpty()) {
+			return new LiftEvolution(0, 0, 0); // No movement needed
 		}
 		
+		// Calculate movement
+		int floorsTraveled = Math.abs(targetFloor - currentFloor);
+		int timeTaken = physics.movementTime(floorsTraveled);
+
+		// Move to target floor and update state
+		currentFloor = targetFloor;
+		requestedFloors.remove(currentFloor);
+		targetFloor = heuristics.chooseTargetFloor(this);
+
 		return new LiftEvolution(direction, floorsTraveled, timeTaken);
 	}
 
 	/**
-	 * Update the current capacity of the lift based on passengers entering and
-	 * exiting.
+	 * Update capacity based on passengers boarding/exiting.
 	 * 
-	 * @param inPassengers  Passengers that would like to enter the lift
-	 * @param outPassengers Passengers that would like to exit the lift
-	 * 
-	 * @return The number of passengers left outside the lift (not able to enter
-	 *         because of max capacity), 0 if all passengers were able to enter.
+	 * @param inPassengers  passengers attempting to board
+	 * @param outPassengers passengers exiting
+	 * @return number of passengers unable to board
 	 */
 	public int updateCapacity(int inPassengers, int outPassengers) {
-		currentCapacity -= (outPassengers <= currentCapacity) ? outPassengers : currentCapacity;
+		// Remove exiting passengers
+		currentCapacity = Math.max(0, currentCapacity - outPassengers);
 
-		int canEnter = lift.maxCapacity() - currentCapacity;
+		// Add boarding passengers up to capacity
+		int availableSpace = lift.maxCapacity() - currentCapacity;
+		int boardingPassengers = Math.min(inPassengers, availableSpace);
+		currentCapacity += boardingPassengers;
 
-		if (inPassengers > canEnter) {
-			currentCapacity += canEnter;
-			return inPassengers - canEnter;
-		}
-
-		currentCapacity += inPassengers;
-
-		return 0;
+		// Return number who couldn't board
+		return inPassengers - boardingPassengers;
 	}
 
 	/**
-	 * Update the current floor of the lift.
-	 * 
-	 * @param floor the new current floor
-	 */
-	public void updateCurrentFloor(int floor) {
-		this.currentFloor = floor;
-	}
-
-	/**
-	 * Set the heuristic for the lift manager to use.
-	 * 
-	 * @param heuristics the heuristic to set
+	 * Set the heuristic strategy for this lift.
 	 */
 	public void setHeuristics(Heuristics heuristics) {
 		this.heuristics = heuristics;
 	}
 
 	/**
-	 * Set the next target floor for the lift.
+	 * Register a passenger call.
+	 * Adds both boarding and destination floors to the queue.
 	 * 
-	 * @param floor the target floor to set
+	 * @param call the passenger's call request
 	 */
-	public void setTargetFloor(int floor, boolean external) {
-		this.requestedFloors.add(floor);
+	public void registerCall(int fromFloor, int toFloor) {
+		// Add destination floor
+		if (!requestedFloors.contains(toFloor)) {
+			requestedFloors.add(toFloor);
+		} else {
+			requestedFloors.remove(toFloor);
+			requestedFloors.add(toFloor); // Re-add to update order
+		}
+
+		// Set target floor to boarding floor
+		targetFloor = fromFloor;
 	}
-
-	/* Execution */
-
-	/**
-	 * Execute the lift movement based on the current heuristic.
-	 * 
-	 * @see Heuristics
-	 */
-	public int decideNextTargetFloor() {
-		int nextFloor = heuristics.chooseTargetFloor(this);
-		setTargetFloor(nextFloor, false);
-		return nextFloor;
-	}
-
-	/**
-	 * Register a call request for the lift.
-	 * 
-	 * @param call the call request to register
-	 */
-	public void registerCall(esiee.lift.global.request.Call call) {
-		this.targetFloor = call.fromFloor();
-		this.requestedFloors.add(call.toFloor());
-	}
-
-	/* Functions to query about lift state */
-
-	/**
-	 * Check if the lift door is open.
-	 */
-	public boolean isDoorOpen() {
-		return doorOpen;
-	}
-
-	/**
-	 * Check if the lift is full.
-	 */
+	
 	public boolean isFull() {
 		return currentCapacity >= lift.maxCapacity();
 	}
 
-	/**
-	 * Check if the lift is empty.
-	 * 
-	 * @return true if the lift is empty, false otherwise
-	 */
-	private boolean isEmpty() {
+	public boolean isEmpty() {
 		return currentCapacity == 0;
 	}
 
-	/**
-	 * Get the current capacity of the lift.
-	 * 
-	 * @return current capacity
-	 */
-	public int getCurrentCapacity() {
-		return currentCapacity;
+	/* Getters */
+
+	public int currentCapacity() {
+		return this.currentCapacity;
 	}
 
-	/**
-	 * Get the current floor of the lift.
-	 */
-	public int getCurrentFloor() {
-		return currentFloor;
+	public int currentFloor() {
+		return this.currentFloor;
 	}
 
-	/**
-	 * Get the set of requested floors for the lift.
-	 */
-	public Set<Integer> getRequestedFloors() {
-		return requestedFloors;
+	public LinkedHashSet<Integer> requestedFloors() {
+		return new LinkedHashSet<>(this.requestedFloors); // Defensive copy
 	}
 
-	/**
-	 * Get the target floor of the lift.
-	 */
-	public int getTargetFloor() {
-		return targetFloor;
+	public int targetFloor() {
+		return this.targetFloor;
 	}
 
-	/**
-	 * Get the current heuristic used by the lift manager.
-	 */
-	public Heuristics getHeuristics() {
-		return heuristics;
+	public byte direction() {
+		return this.direction;
 	}
 
-	/**
-	 * Get the lift being managed.
-	 */
-	public Lift getLift() {
-		return lift;
+	public Heuristics heuristics() {
+		return this.heuristics;
+	}
+
+	public Lift lift() {
+		return this.lift;
 	}
 }

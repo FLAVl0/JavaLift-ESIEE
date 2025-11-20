@@ -13,7 +13,7 @@ public class ClosestLift implements Dispatcher {
 		int fromFloor = call.fromFloor();
 
 		return liftManagers.stream().min((lm1, lm2) -> Integer.compare(
-				Math.abs(lm1.getCurrentFloor() - fromFloor),
-				Math.abs(lm2.getCurrentFloor() - fromFloor)));
+				Math.abs(lm1.currentFloor() - fromFloor),
+				Math.abs(lm2.currentFloor() - fromFloor)));
 	}
 }

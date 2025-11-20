@@ -2,8 +2,9 @@ package esiee.lift;
 
 import java.util.ArrayList;
 
-import esiee.lift.global.dispatcher.*;
+import esiee.lift.global.dispatcher.DispatcherStrategy;
 import esiee.lift.local.builder.LiftManager;
+import esiee.lift.local.builder.LiftManagerBuilder;
 import esiee.lift.global.request.Call;
 
 public class AGA {
@@ -11,15 +12,15 @@ public class AGA {
 	/* Definition of the AGA class */
 
 	private final ArrayList<LiftManager> liftManagers = new ArrayList<>(); // Starts empty (created via builder)
-	private Dispatcher dispatcher;
+	private DispatcherStrategy dispatcherStrategy;
 
 	/**
 	 * Constructor of the AGA class.
 	 * 
-	 * @param dispatcher the dispatcher to use
+	 * @param strategy the dispatcher strategy to use
 	 */
-	public AGA(Dispatcher dispatcher) {
-		this.dispatcher = dispatcher;
+	public AGA(DispatcherStrategy strategy) {
+		this.dispatcherStrategy = strategy;
 	}
 
 	/* Functions to manage global lift state */
@@ -29,8 +30,8 @@ public class AGA {
 	 * 
 	 * @param lm the lift to create through its manager
 	 */
-	public void addLift(LiftManager lm) {
-		liftManagers.add(lm);
+	public void addLift(LiftManagerBuilder lmb) {
+		liftManagers.add(lmb.build());
 	}
 
 	/**
@@ -38,34 +39,31 @@ public class AGA {
 	 * 
 	 * @param dispatcher the dispatcher to use
 	 */
-	public void setDispatcher(Dispatcher dispatcher) {
-		this.dispatcher = dispatcher;
+	public void setDispatcher(DispatcherStrategy strategy) {
+		this.dispatcherStrategy = strategy;
 	}
 
 	public void respondToCall(Call call) {
+		int fromFloor = call.fromFloor();
+		int toFloor = call.toFloor();
+
 		if (call.specificLift()) {
 			liftManagers.stream()
-				.filter(lm -> lm.getLift().id() == call.liftId())
+				.filter(lm -> lm.lift().id() == call.liftId())
 				.findFirst()
-				.ifPresent(lm -> lm.registerCall(call));
+				.ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
 		} else {
-			dispatcher.selectLift(call, liftManagers).ifPresent(lm -> lm.registerCall(call));
+			dispatcherStrategy.createDispatcher().selectLift(call, liftManagers).ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
 		}
 	}
 
-	/* Functions to query about global lift state */
+	/* Getters */
 
-	/**
-	 * Get the list of lifts managed by this AGA.
-	 */
 	public ArrayList<LiftManager> getLiftManagers() {
 		return liftManagers;
 	}
 
-	/**
-	 * Get the dispatcher used by this AGA.
-	 */
-	public Dispatcher getDispatcher() {
-		return dispatcher;
+	public DispatcherStrategy getDispatcherStrategy() {
+		return dispatcherStrategy;
 	}
 }
