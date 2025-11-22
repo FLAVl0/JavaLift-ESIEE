@@ -3,9 +3,9 @@ package esiee.lift;
 import java.util.ArrayList;
 
 import esiee.lift.global.dispatcher.DispatcherStrategy;
+import esiee.lift.global.request.Call;
 import esiee.lift.local.builder.LiftManager;
 import esiee.lift.local.builder.LiftManagerBuilder;
-import esiee.lift.global.request.Call;
 
 public class AGA {
 
@@ -43,18 +43,23 @@ public class AGA {
 		this.dispatcherStrategy = strategy;
 	}
 
-	public void respondToCall(Call call) {
+	public int respondToCall(Call call) {
 		int fromFloor = call.fromFloor();
 		int toFloor = call.toFloor();
-
+		int id = call.liftId();
 		if (call.specificLift()) {
 			liftManagers.stream()
 				.filter(lm -> lm.lift().id() == call.liftId())
 				.findFirst()
 				.ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
 		} else {
-			dispatcherStrategy.createDispatcher().selectLift(call, liftManagers).ifPresent(lm -> lm.registerCall(fromFloor, toFloor));
+
+			LiftManager currentlm = dispatcherStrategy.createDispatcher().selectLift(call, liftManagers);
+			currentlm.registerCall(fromFloor, toFloor);
+			id = currentlm.lift().id();
+			System.out.println("// Inside // Lift " + id + " selected for call from floor " + fromFloor + " to floor " + toFloor);
 		}
+		return id;
 	}
 
 	/* Getters */

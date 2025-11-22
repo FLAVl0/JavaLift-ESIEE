@@ -2,8 +2,8 @@ package esiee.config;
 
 public record SimulationConfig(
     int dureeSimulation,
-    String heureDebut,
-    String heureFin,
+    int heureDebut,
+    int heureFin,
     double vitesseSimulation,
     boolean loggingActif,
     boolean affichageGraphique,
@@ -11,6 +11,19 @@ public record SimulationConfig(
     long seed
 ) {
     public SimulationConfig() {
-        this(43200, "06:00:00", "22:00:00", 1.0, true, false, 60, 12345L);
+        this(43200, 21600, 79200, 1.0, true, false, 60, 12345L);
     }
+    public int getDuration() {
+        return dureeSimulation;
+    }
+    public int getStartTime() {
+        return heureDebut;
+    }
+    public int getEndTime() {
+        return heureFin;
+    }
+    public double getSimulationSpeed() {
+        return vitesseSimulation;
+    }
+    
 }

@@ -10,6 +10,7 @@ import javafx.animation.TranslateTransition;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,6 +40,8 @@ public class TowerView {
     // ID des personnes impliquées dans l’action
     private List<Integer> pendingPersonIds = new ArrayList<>();
     private List<Integer> pendingDestFloors;
+    private Label clockLabel;
+    private int elapsedSeconds = 0;
 
 
     private int pendingElevatorId = 0; 
@@ -62,6 +65,9 @@ public class TowerView {
         root.getChildren().add(ground);
 
         // Soleil
+        Circle sun_out = new Circle(sceneWidth - 150, 150, 65);
+        sun_out.setFill(Color.ORANGE);
+        root.getChildren().add(sun_out);
         Circle sun = new Circle(sceneWidth - 150, 150, 60);
         sun.setFill(Color.GOLD);
         root.getChildren().add(sun);
@@ -91,10 +97,22 @@ public class TowerView {
             trunk.setFill(Color.SADDLEBROWN);
 
             double foliageRadius = 30 + Math.random() * 15;
+            Circle foliage_out = new Circle(treeX + trunkWidth / 2, groundY - trunkHeight - foliageRadius, foliageRadius+5);
+            foliage_out.setFill(Color.DARKGREEN);
             Circle foliage = new Circle(treeX + trunkWidth / 2, groundY - trunkHeight - foliageRadius, foliageRadius);
             foliage.setFill(Color.FORESTGREEN);
 
-            root.getChildren().addAll(trunk, foliage);
+            root.getChildren().addAll(trunk, foliage_out, foliage);
+            // ajout de pommes rouges
+            for (int j = 0; j < 5; j++) {
+                double angle = Math.random() * 2 * Math.PI;
+                double radius = Math.random() * (foliageRadius - 10);
+                double appleX = foliage.getCenterX() + radius * Math.cos(angle);
+                double appleY = foliage.getCenterY() + radius * Math.sin(angle);
+                Circle apple = new Circle(appleX, appleY, 5);
+                apple.setFill(Color.RED);
+                root.getChildren().add(apple);
+            }
         }
         numTrees = 3; // nombre d'arbres
 
@@ -106,10 +124,24 @@ public class TowerView {
             trunk.setFill(Color.SADDLEBROWN);
 
             double foliageRadius = 30 + Math.random() * 15;
+            Circle foliage_out = new Circle(treeX + trunkWidth / 2, groundY - trunkHeight - foliageRadius, foliageRadius+5);
+            foliage_out.setFill(Color.DARKGREEN);
             Circle foliage = new Circle(treeX + trunkWidth / 2, groundY - trunkHeight - foliageRadius, foliageRadius);
             foliage.setFill(Color.FORESTGREEN);
 
-            root.getChildren().addAll(trunk, foliage);
+            
+
+            root.getChildren().addAll(trunk, foliage_out, foliage);
+            // ajout de pommes rouges
+            for (int j = 0; j < 5; j++) {
+                double angle = Math.random() * 2 * Math.PI;
+                double radius = Math.random() * (foliageRadius - 10);
+                double appleX = foliage.getCenterX() + radius * Math.cos(angle);
+                double appleY = foliage.getCenterY() + radius * Math.sin(angle);
+                Circle apple = new Circle(appleX, appleY, 5);
+                apple.setFill(Color.RED);
+                root.getChildren().add(apple);
+            }
         }
         // Charger l’image
         Image planeImage = new Image(getClass().getResource("/airplane.png").toExternalForm());
@@ -118,7 +150,6 @@ public class TowerView {
         planeView.setY(200); // position Y
         planeView.setFitWidth(200); // largeur
         planeView.setFitHeight(150); // hauteur
-
         root.getChildren().add(planeView);
 
         for (int i = 0; i < numFloors; i++) {
@@ -128,6 +159,24 @@ public class TowerView {
             floors.add(floor);
             root.getChildren().add(floor.getShape());
         }
+
+        // ajout d'oiseaux sous forme de \/
+        for (int i = 0; i < 5; i++) {
+            double birdX = 1000 + i * 150;
+            double birdY = 100 + Math.random() * 100;
+            javafx.scene.shape.Polyline bird = new javafx.scene.shape.Polyline();
+            bird.getPoints().addAll(new Double[]{
+                birdX, birdY,
+                birdX + 10, birdY - 10,
+                birdX + 20, birdY
+            });
+            bird.setStroke(Color.BLACK);
+            bird.setStrokeWidth(2);
+            
+            root.getChildren().add(bird);
+        }
+        
+
 
         // Ascenseur
         ElevatorView elevator1 = new ElevatorView(ELEVATOR_X, totalHeight - FLOOR_HEIGHT - 40, 40, 60);
@@ -140,7 +189,22 @@ public class TowerView {
 
         elevators.add(elevator1);
         elevators.add(elevator2);
-       
+        Rectangle fond_clock2 = new Rectangle(45, 185, 210, 60);
+        fond_clock2.setFill(Color.DARKGRAY);
+        root.getChildren().add(fond_clock2);
+        Rectangle fond_clock = new Rectangle(50, 190, 200, 50);
+        fond_clock.setFill(Color.BEIGE);
+        root.getChildren().add(fond_clock);
+        
+        clockLabel = new Label("00:00:00");
+        clockLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        clockLabel.setLayoutX(100);
+        clockLabel.setLayoutY(200);  // Ajuste la position si besoin
+        root.getChildren().add(clockLabel);
+
+
+        
+
 
         // Listener
         replayRequested.addListener((obs, oldVal, newVal) -> {
@@ -187,148 +251,20 @@ public class TowerView {
             }
         });
 
-        Button replayButton = new Button("Up");
+        Button replayButton = new Button("RUN");
         replayButton.setOnAction(e -> {
-            if (renderer == null)
-                return;
-            if (selectedPersonIds == null || selectedPersonIds.isEmpty())
-                return;
-
-            int destFloor;
-            try {
-                destFloor = Integer.parseInt(destFloorInput.getText().trim());
-            } catch (Exception ex) {
-                System.out.println("Destination invalide.");
+            if (demo == null) {
+                System.out.println("Demo not initialized.");
                 return;
             }
-
-            // --- Construire une liste {personId, floor} ---
-            class Entry {
-                int pid;
-                int floor;
-
-                Entry(int pid, int floor) {
-                    this.pid = pid;
-                    this.floor = floor;
-                }
-            }
-
-            List<Entry> entries = new ArrayList<>();
-
-            for (int pid : selectedPersonIds) {
-                System.out.println("Getting floor for person " + pid);
-                entries.add(new Entry(pid, getPersonById(pid).getFloor()));
-            }
-            System.out.println("Entries before sort:");
-            for (Entry en : entries) {
-                System.out.println("Person " + en.pid + " at floor " + en.floor);
-            }
-            // --- TRI réel des personnes du plus haut au plus bas ---
-            entries.sort((a, b) -> b.floor - a.floor);
-            System.out.println("Entries after sort:");
-            for (Entry en : entries) {
-                System.out.println("Person " + en.pid + " at floor " + en.floor);
-            }
-            // --- On conclut : plus d’inversion possible ---
-            List<Integer> boarded = new ArrayList<>();
-            double baseX = getElevator_X();
-
-            Runnable[] step = new Runnable[1];
-
-            step[0] = () -> {
-
-                if (entries.isEmpty()) {
-
-                    ParallelTransition pt = new ParallelTransition();
-                    pt.getChildren().add(renderer.moveElevatorToFloor(elevator1, destFloor));
-
-                    for (int i = 0; i < boarded.size(); i++) {
-                        int pid = boarded.get(i);
-                        double px = baseX + 20 + i * 10;
-                        pt.getChildren().add(renderer.movePersonTo(pid, destFloor, px));
-                    }
-
-                    pt.setOnFinished(ev -> renderer.exitLift(boarded, destFloor));
-                    pt.play();
-                    return;
-                }
-
-                // --- Toujours correct maintenant : {pid, floor} ---
-                Entry next = entries.remove(0);
-
-                int pid = next.pid;
-                int floor = next.floor;
-                System.out.println("Picking person " + pid + " at floor " + floor);
-
-
-                ParallelTransition goPick = new ParallelTransition();
-                goPick.getChildren().add(renderer.moveElevatorToFloor(elevator1,floor));
-
-                for (int i = 0; i < boarded.size(); i++) {
-                    int bid = boarded.get(i);
-                    double px = baseX + 20 + i * 10;
-                    goPick.getChildren().add(renderer.movePersonTo(bid, floor, px));
-                }
-
-                goPick.setOnFinished(ev -> {
-
-                    double enterX = baseX + 20 + boarded.size() * 10;
-                    System.out.println("Person " + pid + " entering elevator at position " + enterX);
-
-                    TranslateTransition enter = renderer.movePersonTo(pid, floor, enterX);
-                    enter.setOnFinished(ev2 -> {
-                        boarded.add(pid);
-                        step[0].run();
-                    });
-                    enter.play();
-                });
-                goPick.play();
-            };
-            step[0].run();
-
-            // Mettre à jour l’étage des personnes
-            for (int personId : selectedPersonIds) {
-                getPersonById(personId).setFloor(destFloor);
-            }
-
-            // Demo backend update
-            for (esiee.Personnes p : demo.personnes) {
-                if (selectedPersonIds.contains(p.getId()-1)) {
-                    p.setEtage(destFloor);
-                }
-            }
-            System.out.println("Updated persons in demo:");
-            demo.personnes.forEach(p -> System.out.println(p));
-
-            demo.printDemo();
-
+            System.out.println("Starting Demo simulation...");
+            demo.startAutomaticSimulation(this); // 
         });
 
-        Button anotherButton = new Button("Down");
+        Button anotherButton = new Button("CLEAR QUEUE");
         anotherButton.setOnAction(e -> {
-            if (renderer != null) {
-                // Test d’affichage des personnes du demo
-                System.out.println("Persons in selectedPerson :");
-                System.out.println(selectedPersonIds);
-                int startFloor;
-                int endFloor;
-                try {
-                    startFloor =   getPersonById(selectedPersonIds.get(0)).getFloor();
-                    endFloor = Integer.parseInt(destFloorInput.getText().trim());
-                } catch (NumberFormatException ex) {
-                    System.out.println("Entree invalide pour les etages.");
-                    return;
-                }
-                if (renderer.getCurrentElevatorFloor() != startFloor) {
-                    TranslateTransition moveLift = renderer.moveElevatorToFloor(elevator1,startFloor);
-                    moveLift.setOnFinished(ev -> renderer.move(selectedPersonIds, startFloor, endFloor));
-                } else {
-                    renderer.move(selectedPersonIds, startFloor, endFloor);
-                }
-                for (int personId : selectedPersonIds) {
-                    getPersonById(personId).setFloor(endFloor);
-                }
-            }
+            stopSimulation();
+            System.out.println("Simulation stopped by user.");
         });
 
         Button varButton = new Button("Lift to random floor");
@@ -356,13 +292,23 @@ public class TowerView {
         });
 
         buttonBox.getChildren().addAll(
-                replayButton, anotherButton, varButton,
-                personInput, setPersonsButton,
-                startFloorInput, setStartFloorButton,
-                destFloorInput, setDestFloorButton);
+                replayButton, anotherButton);
         root.getChildren().add(buttonBox);
 
     }
+
+
+    public void updateClock(int seconds) {
+        
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+
+        String time = String.format("%02d:%02d:%02d", hours, minutes, secs);
+        clockLabel.setText(time);
+    }
+
+
 
     public Demo getDemo() {
         return demo;
@@ -423,6 +369,19 @@ public class TowerView {
         action.run();
     }
 
+    public void stopSimulation() {
+        // Stoppe l’exécution d'actions en cours
+        actionRunning = false;
+
+        // Vide la queue d’actions
+        actionQueue.clear();
+
+        // Réinitialise les flags
+        actionPending = false;
+        actionCompleted = true;
+
+        System.out.println("Simulation stopped and queue cleared (TowerView).");
+    }
 
 
     private void notifyActionCompleted() {

@@ -18,7 +18,7 @@ public class ElevatorView {
     public Rectangle getShape() { return shape; }
 
     public TranslateTransition moveToY(double y) {
-        TranslateTransition move = new TranslateTransition(Duration.seconds(1), shape);
+        TranslateTransition move = new TranslateTransition(Duration.seconds(0.1), shape);
         move.setToY(y - shape.getY());
         move.play();
         return move;

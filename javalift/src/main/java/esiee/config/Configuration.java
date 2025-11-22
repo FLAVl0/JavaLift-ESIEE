@@ -34,9 +34,9 @@ public class Configuration {
         return configData;
     }
 
-    public ConfigurationRecord formatAll(Enum<?> ListConfig) {
+    public ConfigurationRecord formatAll(Enum<?>[] ListConfig) {
         HashMap<String, Object> configs = new HashMap<>();
-        for (Enum<?> e : ListConfig.getClass().getEnumConstants()) {
+        for (Enum<?> e : ListConfig) {
             if (e instanceof RecordList) {
                 RecordList record = (RecordList) e;
                 Object configData = parse("src/main/resources/" + record.getFileName(), record.getConfigClass());

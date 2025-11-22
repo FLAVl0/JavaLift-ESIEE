@@ -45,7 +45,7 @@ public class App extends Application {
         Demo demo = new Demo();
         TowerView tv = new TowerView(10, demo);
 
-        demo.startAutomaticSimulation(tv);
+        //demo.startAutomaticSimulation(tv);
 
 
 

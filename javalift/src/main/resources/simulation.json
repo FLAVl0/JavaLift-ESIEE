@@ -1,7 +1,7 @@
 {
   "dureeSimulation": 43200,
-  "heureDebut": "06:00:00",
-  "heureFin": "22:00:00",
+  "heureDebut": 25200,
+  "heureFin": 79200,
   "vitesseSimulation": 1.0,
   "loggingActif": true,
   "affichageGraphique": false,

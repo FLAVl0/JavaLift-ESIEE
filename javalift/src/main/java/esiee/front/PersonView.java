@@ -67,7 +67,7 @@ public class PersonView {
     public int getId() { return id; }
     public int getFloorDest() { return floorDest; }
     public TranslateTransition moveTo(double x, double y) {
-        TranslateTransition move = new TranslateTransition(Duration.seconds(1), shape);
+        TranslateTransition move = new TranslateTransition(Duration.seconds(0.1), shape);
         move.setToX(x - shape.getCenterX());
         move.setToY(y - shape.getCenterY());
         move.play();

@@ -8,7 +8,6 @@ esiee\config\ConfigurationData.class
 esiee\front\FloorView.class
 esiee\front\TowerView.class
 esiee\lift\AGA.class
-esiee\front\TowerView$2Entry.class
 esiee\PersonneSimple.class
 esiee\config\HabitudeConfig.class
 esiee\Etage.class
